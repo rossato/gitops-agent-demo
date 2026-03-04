@@ -10,7 +10,7 @@ spec:
   name: openshift-gitops-operator
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-    config:
+  config:
     env:
       - name: DISABLE_DEFAULT_ARGOCD_INSTANCE
         value: 'true'
