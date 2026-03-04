@@ -2,9 +2,21 @@
 apiVersion: argoproj.io/v1beta1
 kind: ArgoCD
 metadata:
-  name: openshift-gitops
-  namespace: openshift-gitops
+  name: argocd
+  namespace: argocd
 spec:
+  argoCDAgent:
+    principal:
+      namespace:
+        allowedNamespaces:
+          - "argocd-agent-*"
+      enabled: true
+      image: quay.io/gnunn/argocd-agent:latest
+      jwt:
+        insecureGenerate: true
+      auth: mtls:CN=([^,]+)
+  sourceNamespaces:
+    - "argocd-agent-*"
   resourceTrackingMethod: annotation
   kustomizeBuildOptions: --enable-alpha-plugins --load-restrictor LoadRestrictionsNone
   extraConfig:
@@ -221,7 +233,13 @@ spec:
       enabled: false
   initialSSHKnownHosts: {}
   applicationSet:
-    #extraCommandArgs:
+    webhookServer:
+      route:
+        enabled: true
+    extraCommandArgs:
+      - "--applicationset-namespaces"
+      - "argocd-agent-*"
+      - "--enable-scm-providers=false"
     #  - --enable-progressive-syncs
     resources:
       limits:
@@ -273,24 +291,6 @@ spec:
       requests:
         cpu: 250m
         memory: 256Mi
-  resourceExclusions: |
-    - apiGroups:
-      - internal.open-cluster-management.io
-      kinds:
-      - ManagedClusterInfo
-      clusters:
-      - "*"
-    - apiGroups:
-      - tekton.dev
-      clusters:
-      - '*'
-      kinds:
-      - TaskRun
-      - PipelineRun
-    - apiGroups:
-      - "*"
-      kinds:
-      - ProviderConfigUsage
   sso:
     dex:
       resources:
@@ -322,21 +322,13 @@ spec:
         cpu: 250m
         memory: 128Mi
   controller:
-    processors: {}
-    resources:
-      limits:
-        cpu: "2"
-        memory: 2Gi
-      requests:
-        cpu: 250m
-        memory: 1Gi
-    sharding: {}
+    enabled: false
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: setenv-cmp-plugin
-  namespace: openshift-gitops
+  namespace: argocd
 data:
   plugin.yaml: |
     apiVersion: argoproj.io/v1alpha1
@@ -360,7 +352,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: environment-variables
-  namespace: openshift-gitops
+  namespace: argocd
 data:
   KUSTOMIZE_PLUGIN_HOME: /etc/kustomize/plugin
   CLUSTER_NAME: '${cluster_name}'

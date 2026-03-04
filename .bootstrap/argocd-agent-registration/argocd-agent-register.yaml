@@ -1,0 +1,44 @@
+---
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: argocd-agent-hub
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-agent-hub
+  namespace: argocd
+spec:
+  secretName: argocd-agent-hub
+  issuerRef:
+    name: argocd-agent-ca
+    kind: Issuer
+  commonName: argocd-agent-hub
+  subject:
+    organizationalUnits:
+      - ocp-sno.lab.home
+  usages:
+    - client auth
+  dnsNames:
+  - argocd-agent-hub.ocp-sno.lab.home
+
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: argocd-principal-hub
+  namespace: argocd
+spec:
+  secretName: argocd-principal-hub
+  issuerRef:
+    name: argocd-agent-ca
+    kind: Issuer
+  commonName: argocd-agent-hub
+  subject:
+    organizationalUnits:
+      - ocp-sno.lab.home
+  dnsNames:
+  - argocd-agent-hub.ocplab.com
+

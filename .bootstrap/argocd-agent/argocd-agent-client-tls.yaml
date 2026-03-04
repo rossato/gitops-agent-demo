@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argocd-agent-client-tls
+  namespace: argocd-agent
+type: kubernetes.io/tls
+data:
+  ca.crt: '{{hub (fromSecret "argocd" "argocd-agent-hub" "ca.crt") hub}}'
+  tls.crt: '{{hub (fromSecret "argocd" "argocd-agent-hub" "tls.crt") hub}}'
+  tls.key: '{{hub (fromSecret "argocd" "argocd-agent-hub" "tls.key") hub}}'
