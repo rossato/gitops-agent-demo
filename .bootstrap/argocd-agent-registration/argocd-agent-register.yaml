@@ -40,5 +40,5 @@ spec:
     organizationalUnits:
       - ocp-sno.lab.home
   dnsNames:
-  - argocd-agent-hub.ocplab.com
+  - argocd-agent-hub.ocp-sno.lab.home
 
